@@ -12,3 +12,4 @@ python-magic==0.4.27
 python-jose==3.3.0
 pytz==2024.1
 cloudinary==1.38.0
+requests==2.31.0
