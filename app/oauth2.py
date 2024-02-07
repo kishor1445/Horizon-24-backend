@@ -9,11 +9,12 @@ from app.config import IST
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    expire = datetime.now(IST) + (
-        expires_delta or timedelta(days=int(os.getenv("ACCESS_TOKEN_EXPIRE_DAYS", 1)))
-    )
-    data.update({"exp": expire})
+def create_access_token(data: dict, expires_delta: timedelta | None = None, exp_never: bool = False):
+    if not exp_never:
+        expire = datetime.now(IST) + (
+                expires_delta or timedelta(days=int(os.getenv("ACCESS_TOKEN_EXPIRE_DAYS", 1)))
+        )
+        data.update({"exp": expire})
     return jwt.encode(
         data, os.environ["SECRET_KEY"], os.getenv("JWT_ALGORITHM", "HS256")
     )

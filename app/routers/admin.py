@@ -12,7 +12,10 @@ from app.schema import (
     PyID,
 )
 from app.config import db
-from app.oauth2 import get_admin, create_access_token
+from app.oauth2 import get_admin, create_access_token, get_payload
+from app.utility.qr import create_qr
+from app.utility.mail import send, payment_verified_mail
+
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -81,7 +84,24 @@ async def pending_verification(
         {"reg_no": data.reg_no, "event_id": data.event_id},
         {"$set": {"status": data.status.value}},
     )
+    user_data = await db.event_register.find_one({"reg_no": data.reg_no})
+    event_data = await db.events.find_one({"_id": ObjectId(data.event_id)})
+    if user_data:
+        url = f"{os.environ['FRONTEND_DOMAIN']}/events/attendance?id={user_data['_id']}"
+        qr_img = create_qr(url)
+        await send([user_data['email']], f"{event_data['name']}: Payment Verified Successful", html_body=payment_verified_mail(user_data, event_data), attachments=[qr_img])
     return {"msg": "Updated successfully"}
+
+
+@router.post("/events/attendance")
+async def attendance(token: str, admin_reg_no: int = Depends(get_admin)):
+    _data = get_payload(token, HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Token"
+    ))
+    await db.event_register.update_one({"reg_no": _data["reg_no"]}, {"$set": {
+        "attended": True
+    }})
+    return None
 
 
 @router.get("/export", response_model=list[Event] | list[RegisterEvent])
@@ -90,3 +110,5 @@ async def export(
 ):
     data = await db[collection_name].find().to_list(None)
     return data
+
+

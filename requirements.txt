@@ -2,7 +2,7 @@ fastapi==0.109.2
 pymongo==4.6.1
 python-dotenv==1.0.1
 motor==3.3.2
-uvicorn==0.27.0.post1
+uvicorn[standard]
 email-validator==2.1.0.post1
 certifi==2024.2.2
 pydantic==2.6.0
@@ -13,3 +13,6 @@ python-jose==3.3.0
 pytz==2024.1
 cloudinary==1.38.0
 requests==2.31.0
+segno==1.6.0
+qrcode-artistic==3.0.2
+gunicorn==21.2.0

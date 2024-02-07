@@ -63,6 +63,7 @@ async def register_event(data: CreateRegisterEvent):
 
     _data = data.model_dump()
     _data["status"] = PaymentStatus.PENDING.value
+    _data["attended"] = False
     if _data.get("team", None):
         if len(_data["team"]) > 3:
             raise HTTPException(

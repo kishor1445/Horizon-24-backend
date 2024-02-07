@@ -69,7 +69,7 @@ class RegisterEventBase(BaseModel):
     reg_no: int
     team: List[Team] | None = None
     transaction_id: str
-    screenshot_id: str  # TODO: str for testing purpose change it back to UUID
+    screenshot_id: str
     department: str
     section: str
     year: int
@@ -85,6 +85,7 @@ class CreateRegisterEvent(RegisterEventBase):
 class RegisterEvent(RegisterEventBase):
     id: PyObjectId | None = Field(alias="_id", default=None)
     status: PaymentStatus = PaymentStatus.PENDING
+    attended: bool
 
 
 class VerifyPayment(BaseModel):
