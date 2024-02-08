@@ -84,10 +84,13 @@ async def register_event(data: CreateRegisterEvent):
 
 @router.get("/check_status")
 async def check_status(reg_no: int):
-    _data = {}
+    _data = []
     async for db_data in db.event_register.find({"reg_no": reg_no}):
         event_data = await db.events.find_one({"_id": ObjectId(db_data["event_id"])})
-        _data[event_data["name"]] = db_data["status"]
+        _data.append({
+            "event_name": event_data["name"],
+            "status": db_data["status"]
+        })
     return _data
 
 
