@@ -89,7 +89,9 @@ async def check_status(reg_no: int):
         event_data = await db.events.find_one({"_id": ObjectId(db_data["event_id"])})
         _data.append({
             "event_name": event_data["name"],
-            "status": db_data["status"]
+            "status": db_data["status"],
+            "transaction_id": db_data['transaction_id'],
+            "fee": event_data["fee"]
         })
     return _data
 
