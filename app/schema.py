@@ -73,7 +73,6 @@ class RegisterEventBase(BaseModel):
     department: str
     section: str
     year: int
-    whatsapp: int
     email: EmailStr
     event_id: PyObjectId
 
