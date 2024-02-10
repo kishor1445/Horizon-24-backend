@@ -94,7 +94,7 @@ def payment_verified_mail(reg_data: dict, event: dict):
         <div style="text-align: center;">
             <img src="{os.environ['DOMAIN']}/static/Images/horizon24.gif" alt="horizon24 logo" width="300", height="100" /> 
         </div>
-        <p>Your Payment for this event is verification. QR Code for attendance is attacked in this email</p>
+        <p>Your Payment for this event is verified. QR Code for attendance is attacked in this email</p>
         <h2 style="text-align: center;">{event['name']}</h2>
         <br />
         <p>{event['description']}</p>
