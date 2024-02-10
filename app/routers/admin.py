@@ -94,11 +94,8 @@ async def pending_verification(
 
 
 @router.get("/events/attendance")
-async def attendance(token: str, admin_reg_no: int = Depends(get_admin)):
-    _data = get_payload(token, HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Token"
-    ))
-    await db.event_register.update_one({"reg_no": _data["reg_no"]}, {"$set": {
+async def attendance(_id: str = Query(alias="id"), admin_reg_no: int = Depends(get_admin)):
+    await db.event_register.update_one({"_id": ObjectId(_id)}, {"$set": {
         "attended": True
     }})
     return None
