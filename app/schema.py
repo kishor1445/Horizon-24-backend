@@ -40,6 +40,11 @@ class EventBase(BaseModel):
     venue: str
     image_url: str
     whatsapp_group_link: str
+    round_details: list[list[str]]
+    rules: list[str]
+    special_note: list[str]
+    organizers: list[str]
+    contact_number: list[int]
 
 
 class CreateEvent(EventBase):
@@ -58,6 +63,11 @@ class UpdateEvent(BaseModel):
     venue: str | None = None
     image_url: str | None = None
     whatsapp_group_link: str | None = None
+    round_details: list[list[str]] | None = None
+    rules: list[str] | None = None
+    special_note: list[str] | None = None
+    organizers: list[str] | None = None
+    contact_number: list[int] | None = None
 
 
 class Event(EventBase):
