@@ -3,6 +3,7 @@ import cloudinary
 from fastapi import APIRouter, Query, status, Depends, HTTPException
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from bson import ObjectId
+from bson.errors import InvalidId
 from app.schema import (
     CreateEvent,
     UpdateEvent,
@@ -95,7 +96,7 @@ async def pending_verification(
     )
     user_data = await db.event_register.find_one({"reg_no": data.reg_no})
     event_data = await db.events.find_one({"_id": ObjectId(data.event_id)})
-    if user_data:
+    if user_data and event_data:
         url = f"{os.environ['FRONTEND_DOMAIN']}/events/attendance?id={user_data['_id']}"
         qr_img = create_qr(url)
         await send([user_data['email']], f"{event_data['name']}: Payment Verified Successful", html_body=payment_verified_mail(user_data, event_data), attachments=[qr_img])
@@ -104,7 +105,20 @@ async def pending_verification(
 
 @router.get("/events/attendance")
 async def attendance(_id: str = Query(alias="id"), admin_reg_no: int = Depends(get_admin)):
-    await db.event_register.update_one({"_id": ObjectId(_id)}, {"$set": {
+    try:
+        mongo_id = ObjectId(_id)
+    except InvalidId:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid ID"
+        )
+    found = await db.event_register.find_one({"_id": mongo_id})
+    if not found:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Invalid ID"
+        )
+    await db.event_register.update_one({"_id": mongo_id}, {"$set": {
         "attended": True
     }})
     return None
