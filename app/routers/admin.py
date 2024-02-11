@@ -8,11 +8,12 @@ from app.schema import (
     UpdateEvent,
     Event,
     RegisterEvent,
+    RegisterEventWithoutScreenshotUrl,
     VerifyPayment,
     PyID,
 )
 from app.config import db
-from app.oauth2 import get_admin, create_access_token, get_payload
+from app.oauth2 import get_admin, create_access_token
 from app.utility.qr import create_qr
 from app.utility.mail import send, payment_verified_mail
 
@@ -61,7 +62,11 @@ async def delete_event(_id=Query(alias="id"), admin_reg_no: int = Depends(get_ad
 
 @router.get("/check_status", response_model=list[RegisterEvent])
 async def check_status(reg_no: int, admin_reg_no: int = Depends(get_admin)):
-    return await db.event_register.find({"reg_no": reg_no}).to_list(None)
+    _data = await db.event_register.find({"reg_no": reg_no}).to_list(None)
+    if _data:
+        for i in range(len(_data)):
+            _data[i]["screenshot_url"] = cloudinary.CloudinaryImage(_data[i]["screenshot_id"]).build_url()
+    return _data
 
 
 @router.get("/payment_screenshot", response_model=str)
@@ -73,7 +78,11 @@ async def get_payment_screenshot(
 
 @router.get("/events/pending_verification", response_model=list[RegisterEvent])
 async def pending_verification(admin_reg_no: int = Depends(get_admin)):
-    return await db.event_register.find({"status": "pending"}).to_list(None)
+    _data = await db.event_register.find({"status": "pending"}).to_list(None)
+    if _data:
+        for i in range(len(_data)):
+            _data[i]["screenshot_url"] = cloudinary.CloudinaryImage(_data[i]["screenshot_id"]).build_url()
+    return _data
 
 
 @router.post("/events/pending_verification")
@@ -101,7 +110,7 @@ async def attendance(_id: str = Query(alias="id"), admin_reg_no: int = Depends(g
     return None
 
 
-@router.get("/export", response_model=list[Event] | list[RegisterEvent])
+@router.get("/export", response_model=list[Event] | list[RegisterEventWithoutScreenshotUrl])
 async def export(
     collection_name: str = Query(alias="id"), admin_reg_no: int = Depends(get_admin)
 ):

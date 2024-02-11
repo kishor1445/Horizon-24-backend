@@ -79,7 +79,6 @@ class RegisterEventBase(BaseModel):
     reg_no: int
     team: List[Team] | None = None
     transaction_id: str
-    screenshot_id: str
     department: str
     section: str
     year: int
@@ -88,11 +87,18 @@ class RegisterEventBase(BaseModel):
 
 
 class CreateRegisterEvent(RegisterEventBase):
-    ...
+    screenshot_id: str
 
 
 class RegisterEvent(RegisterEventBase):
     id: PyObjectId | None = Field(alias="_id", default=None)
+    screenshot_url: str
+    status: PaymentStatus = PaymentStatus.PENDING
+    attended: bool
+
+class RegisterEventWithoutScreenshotUrl(RegisterEventBase):
+    id: PyObjectId | None = Field(alias="_id", default=None)
+    screenshot_id: str
     status: PaymentStatus = PaymentStatus.PENDING
     attended: bool
 

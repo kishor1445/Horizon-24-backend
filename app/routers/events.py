@@ -79,7 +79,10 @@ async def register_event(data: CreateRegisterEvent):
         subject=event_data["name"],
         html_body=event_reg_mail(event_data, _data),
     )
-    return await db.event_register.find_one({"_id": _id})
+    event_reg_data = await db.event_register.find_one({"_id": _id})
+    if event_reg_data:
+        event_reg_data["screenshot_url"] = screenshot_url
+    return event_reg_data
 
 
 @router.get("/check_status")
