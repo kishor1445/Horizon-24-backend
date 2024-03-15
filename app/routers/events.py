@@ -2,10 +2,10 @@ import cloudinary.uploader as CloudUploader
 import cloudinary
 import requests
 from typing import List
-from fastapi import APIRouter, HTTPException, UploadFile, status
+from fastapi import APIRouter, HTTPException, UploadFile, status, Query
 from bson import ObjectId
 from app.config import db
-from app.schema import Event, CreateRegisterEvent, RegisterEvent, PaymentStatus
+from app.schema import Event, CreateRegisterEvent, RegisterEvent, PaymentStatus, PyObjectId
 from app.utility.mail import send, event_reg_mail
 from app.utility.security import is_valid_image
 
@@ -15,7 +15,9 @@ router = APIRouter(prefix="/events", tags=["Events"])
 
 @router.get("/", response_model=List[Event])
 async def get_events():
-    return await db.get_collection("events").find().to_list(None)
+    data = await db.get_collection("events").find().to_list(None)
+    print(data)
+    return data
 
 
 @router.post("/register", response_model=RegisterEvent)
@@ -51,7 +53,9 @@ async def register_event(data: CreateRegisterEvent):
             status_code=status.HTTP_409_CONFLICT,
             detail="This Screenshot ID is already used",
         )
+    num_data = len(await db.event_register.find().to_list(None))
     event_data = await db.events.find_one({"_id": ObjectId(data.event_id)})
+    TicketID = f"HRZ-{'N' if event_data['type'].startswith('non') else 'T'}-{str(num_data).zfill(5)}"
     if not event_data:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Event Does Not Exist"
@@ -64,6 +68,7 @@ async def register_event(data: CreateRegisterEvent):
     _data = data.model_dump()
     _data["status"] = PaymentStatus.PENDING.value
     _data["attended"] = False
+    _data["ticket_id"] = TicketID
     if _data.get("team", None):
         if len(_data["team"]) > 3:
             raise HTTPException(
@@ -109,3 +114,27 @@ async def upload_payment_screenshot(screenshot: UploadFile):
         )
     data = CloudUploader.upload(img)
     return {"id": data["public_id"]}
+
+@router.get("/event_details", response_model=Event)
+async def get_event_details(event_id: str):
+    _data = await db.events.find_one({"_id": ObjectId(event_id)})
+    _data["_id"] = PyObjectId(_data["_id"])
+    return _data
+
+@router.get("/ticket", response_model=RegisterEvent)
+async def get_ticket_details(ticket_id: str):
+    # ticket_id = "temp"
+    _data = await db.event_register.find_one({"ticket_id": ticket_id})
+    print(_data)
+    if _data:
+        _data["screenshot_url"] = cloudinary.CloudinaryImage(_data["screenshot_id"]).build_url()
+    return _data
+    # return None
+
+@router.get("/check_event_status", response_model=list[RegisterEvent])
+async def check_event_status(_id: str = Query(..., alias=['id'])):
+    _data = await db.event_register.find({"_id": ObjectId(_id)}).to_list(None)
+    if _data:
+        for i in range(len(_data)):
+            _data[i]["screenshot_url"] = cloudinary.CloudinaryImage(_data[i]["screenshot_id"]).build_url()
+    return _data

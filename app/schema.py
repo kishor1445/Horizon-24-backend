@@ -48,7 +48,7 @@ class EventBase(BaseModel):
 
 
 class CreateEvent(EventBase):
-    ...
+    seat: int = 0
 
 
 class UpdateEvent(BaseModel):
@@ -63,7 +63,7 @@ class UpdateEvent(BaseModel):
     venue: str | None = None
     image_url: str | None = None
     whatsapp_group_link: str | None = None
-    round_details: list[list[str]] | None = None
+    round_details: list[str] | None = None
     rules: list[str] | None = None
     special_note: list[str] | None = None
     organizers: list[str] | None = None
@@ -95,12 +95,15 @@ class RegisterEvent(RegisterEventBase):
     screenshot_url: str
     status: PaymentStatus = PaymentStatus.PENDING
     attended: bool
+    ticket_id: str
+
 
 class RegisterEventWithoutScreenshotUrl(RegisterEventBase):
     id: PyObjectId | None = Field(alias="_id", default=None)
     screenshot_id: str
     status: PaymentStatus = PaymentStatus.PENDING
     attended: bool
+    ticket_id: str
 
 
 class VerifyPayment(BaseModel):

@@ -118,6 +118,11 @@ async def attendance(_id: str = Query(alias="id"), admin_reg_no: int = Depends(g
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Invalid ID"
         )
+    if not found.status:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your payment still under verification"
+        )
     await db.event_register.update_one({"_id": mongo_id}, {"$set": {
         "attended": True
     }})
@@ -130,5 +135,3 @@ async def export(
 ):
     data = await db[collection_name].find().to_list(None)
     return data
-
-
