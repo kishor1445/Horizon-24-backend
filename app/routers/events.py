@@ -16,7 +16,6 @@ router = APIRouter(prefix="/events", tags=["Events"])
 @router.get("/", response_model=List[Event])
 async def get_events():
     data = await db.get_collection("events").find().to_list(None)
-    print(data)
     return data
 
 
@@ -123,16 +122,14 @@ async def get_event_details(event_id: str):
 
 @router.get("/ticket", response_model=RegisterEvent)
 async def get_ticket_details(ticket_id: str):
-    # ticket_id = "temp"
     _data = await db.event_register.find_one({"ticket_id": ticket_id})
     print(_data)
     if _data:
         _data["screenshot_url"] = cloudinary.CloudinaryImage(_data["screenshot_id"]).build_url()
     return _data
-    # return None
 
 @router.get("/check_event_status", response_model=list[RegisterEvent])
-async def check_event_status(_id: str = Query(..., alias=['id'])):
+async def check_event_status(_id: str = Query(..., alias='id')):
     _data = await db.event_register.find({"_id": ObjectId(_id)}).to_list(None)
     if _data:
         for i in range(len(_data)):
