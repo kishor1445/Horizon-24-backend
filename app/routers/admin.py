@@ -70,6 +70,19 @@ async def check_status(reg_no: int, admin_reg_no: int = Depends(get_admin)):
     return _data
 
 
+@router.get("/status", response_model=list[RegisterEvent])
+async def status(admin_reg_no: int = Depends(get_admin)):
+    _data = []
+    async for db_data in db.event_register.find():
+        event_data = await db.events.find_one({"_id": ObjectId(db_data["event_id"])})
+        _data.append({
+            "event_name": event_data["name"],
+            "status": db_data["status"],
+            "transaction_id": db_data['transaction_id'],
+            "fee": event_data["fee"]
+        })
+    return _data
+
 @router.get("/payment_screenshot", response_model=str)
 async def get_payment_screenshot(
     _id: str = Query(alias="id"), admin_reg_no: int = Depends(get_admin)
