@@ -40,7 +40,7 @@ class EventBase(BaseModel):
     venue: str
     image_url: str
     whatsapp_group_link: str
-    round_details: list[list[str]]
+    round_details: list[str]
     rules: list[str]
     special_note: list[str]
     organizers: list[str]

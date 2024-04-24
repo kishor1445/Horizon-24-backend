@@ -1,5 +1,6 @@
 import os
 import cloudinary
+from pytz import timezone
 from fastapi import APIRouter, Query, status, Depends, HTTPException
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from bson import ObjectId
@@ -71,7 +72,7 @@ async def check_status(reg_no: int, admin_reg_no: int = Depends(get_admin)):
 
 
 @router.get("/status", response_model=list[RegisterEvent])
-async def status(admin_reg_no: int = Depends(get_admin)):
+async def status_all(admin_reg_no: int = Depends(get_admin)):
     _data = []
     async for db_data in db.event_register.find():
         event_data = await db.events.find_one({"_id": ObjectId(db_data["event_id"])})
