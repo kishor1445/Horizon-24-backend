@@ -11,7 +11,7 @@ python-multipart==0.0.7
 python-jose==3.3.0
 pytz==2024.1
 cloudinary==1.38.0
-requests==2.31.0
+requests==2.32.0
 segno==1.6.0
 qrcode-artistic==3.0.2
 gunicorn==21.2.0
