@@ -96,6 +96,7 @@ class RegisterEvent(RegisterEventBase):
     status: PaymentStatus = PaymentStatus.PENDING
     attended: bool
     ticket_id: str
+    event_name: str
 
 
 class RegisterEventWithoutScreenshotUrl(RegisterEventBase):

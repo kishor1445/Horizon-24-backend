@@ -80,8 +80,11 @@ async def status_all(admin_reg_no: int = Depends(get_admin)):
             "event_name": event_data["name"],
             "status": db_data["status"],
             "transaction_id": db_data['transaction_id'],
-            "fee": event_data["fee"]
+            "fee": event_data["fee"],
+            "screenshot_url": cloudinary.CloudinaryImage(db_data["screenshot_id"]).build_url(),
+            **db_data,
         })
+    print(_data)
     return _data
 
 @router.get("/payment_screenshot", response_model=str)
